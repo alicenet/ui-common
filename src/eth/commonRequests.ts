@@ -164,7 +164,7 @@ export const commonEthRequests = {
     },
     /**
      * Send a request to exit a locked position early partially or fully
-     * @notice unlocks a locked position and collect all kind of profits (bonus shares, held rewards etc). 
+     * @notice unlocks a locked position and collect all kind of profits (bonus shares, held rewards etc).
      * Can only be called after the locking period has finished and {aggregateProfits}
      * has been executed for positions. Can only be called by the user entitled to a position
      * (address that locked a position). This function can only be called after the locking period
@@ -178,7 +178,7 @@ export const commonEthRequests = {
     sendExitLockedPositionRequest: async (ethAdapter: any, toAddress: string, stakeExit: boolean) => {
         return await ethAdapter.contractMethods.LOCKUP.unlock_nonpayable_IN2_OUT2({
             to_: toAddress,
-            stakeExit_: stakeExit
-        })
+            stakeExit_: stakeExit,
+        });
     },
 };

@@ -1,1 +1,1 @@
-export { commonEthRequests } from './commonRequests';
+export { commonEthRequests } from "./commonRequests";
