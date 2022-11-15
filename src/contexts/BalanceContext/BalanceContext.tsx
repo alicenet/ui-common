@@ -57,7 +57,7 @@ const prettyFxNames = {
     getAlcbBalance: "getAlcbBalance",
     getATokenAllowanceForMad: "getATokenAllowanceForMad",
     getStakedAlcaPositions: "getStakedAlcaPositions",
-    getLockedPosition: "getLockedPosition"
+    getLockedPosition: "getLockedPosition",
 };
 
 // Pretty function name => [functionName, functionObject]
@@ -68,7 +68,6 @@ const prettyFunctionIDs = {
     [prettyFxNames.getATokenAllowanceForMad]: [prettyFxNames.getATokenAllowanceForMad, getATokenAllowanceForMad],
     [prettyFxNames.getStakedAlcaPositions]: [prettyFxNames.getStakedAlcaPositions, getStakedAlcaPositions],
     [prettyFxNames.getLockedPosition]: [prettyFxNames.getLockedPosition, getLockedPosition],
-
 };
 
 /**
@@ -90,6 +89,18 @@ export function BalanceContextProvider({ children, ethAdapter }) {
         // Get eth balance first
         await ethAdapter.updateEthereumBalance();
 
+        const updateAllAddressesFromFactory = async () => {
+            let cSalts = ["AToken", "BToken", "PublicStaking", "Lockup", "ValidatorStaking"];
+            for (let cSalt of cSalts) {
+                let addressFromFactory = await ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
+                    salt_: ethAdapter.ethers.utils.formatBytes32String(cSalt),
+                });
+                ethAdapter.contractConfig[cSalt.toUpperCase()].address = addressFromFactory;
+            }
+        };
+
+        await updateAllAddressesFromFactory();
+
         // Get the BToken contract address and update contractConfig on ethAdapter if it's set to 0x0
         if (ethAdapter.contractConfig["BTOKEN"].address === "0x0") {
             console.warn("BToken was set to 0x0... using Factory.lookup() to populate BTOKEN address.");
@@ -106,7 +117,7 @@ export function BalanceContextProvider({ children, ethAdapter }) {
             [prettyFxNames.getAlcbBalance, [ethAdapter, address]],
             [prettyFxNames.getATokenAllowanceForMad, [ethAdapter, address]],
             [prettyFxNames.getStakedAlcaPositions, [ethAdapter, address]],
-            [prettyFxNames.getLockedPosition, [ethAdapter, address]]
+            [prettyFxNames.getLockedPosition, [ethAdapter, address]],
         ]);
 
         // Assign them as needed
@@ -116,15 +127,23 @@ export function BalanceContextProvider({ children, ethAdapter }) {
             madBalance: functionResults[prettyFxNames.getMadBalance],
             alcaMadAllowance: functionResults[prettyFxNames.getATokenAllowanceForMad],
             stakedPositions: functionResults[prettyFxNames.getStakedAlcaPositions],
-            lockedPosition: functionResults[prettyFxNames.getLockedPosition]
+            lockedPosition: functionResults[prettyFxNames.getLockedPosition],
         };
+
+        let errChecks = [madBalance, alcaBalance, alcbBalance, alcaMadAllowance, stakedPositions, lockedPosition];
+
+        for (let errCheck of errChecks) {
+            if (errCheck.error) {
+                console.error("BalanceContextError: " + String(errCheck.error));
+            }
+        }
 
         // Construct newBalances object
         const newBalances = {
-            alca: alcaBalance.error ? alcaBalance.error : alcaBalance.toString(),
-            alcb: alcbBalance.error ? alcbBalance.error : alcbBalance.toString(),
+            alca: alcaBalance.error ? { error: alcaBalance.error } : alcaBalance.toString(),
+            alcb: alcbBalance.error ? { error: alcbBalance.error } : alcbBalance.toString(),
             ethereum: ethAdapter.balances.ethereum, // Should be up to date from the updateEthereumBalanceCall()
-            mad: madBalance.error ? madBalance.error : madBalance.toString(),
+            mad: madBalance.error ? { error: madBalance.error } : madBalance.toString(),
         };
 
         // Construct newAllowances object
@@ -133,14 +152,14 @@ export function BalanceContextProvider({ children, ethAdapter }) {
             alcb: {},
             mad: {
                 [ethAdapter.contractConfig.ATOKEN.address]: alcaMadAllowance.error
-                    ? alcaMadAllowance.error
+                    ? { error: alcaMadAllowance.error }
                     : alcaMadAllowance.toString(),
             },
         };
 
         const newPositions = {
-            staked: stakedPositions,
-            locked: lockedPosition
+            staked: stakedPositions.error ? { error: stakedPositions.error } : stakedPositions,
+            locked: lockedPosition.error ? { error: lockedPosition.error } : lockedPosition,
         };
 
         setContextState((s) => ({
@@ -199,7 +218,7 @@ async function resolveBalancePromiseFunctionsNeatly(promiseFunctions: any[]) {
             throw new Error("Check prettyFunctionIDs config, functionName !== givenPrettyName");
         }
         if (typeof fxToCall === "function") {
-            fxNames.push(fxName)
+            fxNames.push(fxName);
             promises.push(fxToCall.apply(null, fxArgs));
         }
     }
@@ -224,7 +243,7 @@ async function getMadBalance(ethAdapter, address) {
         });
         return ethAdapter.ethers.utils.formatEther(res);
     } catch (ex) {
-        return { error: ex.message };
+        return { error: "getMadBalance(): " + String(ex.message) };
     }
 }
 
@@ -242,7 +261,7 @@ async function getATokenAllowanceForMad(ethAdapter, address) {
         });
         return ethAdapter.ethers.utils.formatEther(allowance);
     } catch (ex) {
-        return { error: ex };
+        return { error: "getATokenAllowanceForMad(): " + String(ex.message) };
     }
 }
 
@@ -253,7 +272,7 @@ async function getAlcaBalance(ethAdapter, address) {
         });
         return ethAdapter.ethers.utils.formatEther(res);
     } catch (ex) {
-        return { error: ex.message };
+        return { error: "getAlcaBalance(): " + String(ex.message) };
     }
 }
 
@@ -264,7 +283,7 @@ async function getAlcbBalance(ethAdapter, address) {
         });
         return ethAdapter.ethers.utils.formatEther(res);
     } catch (ex) {
-        return { error: ex.message };
+        return { error: "getAlcbBalance(): " + String(ex.message) };
     }
 }
 ////////////////////////////////////
@@ -287,8 +306,7 @@ async function getStakedAlcaPositions(ethAdapter, address) {
         }
         return positions;
     } catch (ex) {
-        console.log(ex);
-        return { error: ex.message };
+        return { error: "getStakedAlcaPositions(): " + String(ex.message) };
     }
 }
 
@@ -369,15 +387,13 @@ async function getLockedPosition(ethAdapter, address) {
             payoutEth: ethAdapter.ethers.utils.formatEther(payoutEth),
             payoutToken: ethAdapter.ethers.utils.formatEther(payoutToken),
             tokenId: tokenId.toString(),
-            lockupPeriod: ethAdapter.ethers.BigNumber.from(end).gt(blockNumber)
-                ? "LOCKED"
-                : "END",
+            lockupPeriod: ethAdapter.ethers.BigNumber.from(end).gt(blockNumber) ? "LOCKED" : "END",
             penalty: penalty.toString(),
             blockUntilUnlock: ethAdapter.ethers.BigNumber.from(end).sub(blockNumber).toString(),
             remainingRewards,
         };
     } catch (ex) {
-        return { error: ex.message };
+        return { error: "getLockedPosition(): " + String(ex.message) };
     }
 }
 
