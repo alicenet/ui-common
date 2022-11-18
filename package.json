@@ -3,8 +3,7 @@
     "version": "1.0.0",
     "description": "Collection of common alice ui utilities",
     "license": "MIT",
-    "main": "dist/cjs/index.js",
-    "module": "dist/esm/index.js",
+    "main": "dist/esm/index.js",
     "type": "module",
     "engines": {
         "node": ">=14",

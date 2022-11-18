@@ -12,7 +12,7 @@ export const commonEthRequests = {
      * @param { String } unformattedAmount - The unformatted amont of Mad Tokens to allow
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendMadAllowanceForATokenRequest: async (ethAdapter: any, unformattedAmount: string) => {
+    migrate_sendMadAllowanceForATokenRequest: async (ethAdapter: any, unformattedAmount: string) => {
         return await ethAdapter.contractMethods.MADTOKEN.approve_nonpayable_IN2_OUT1({
             _spender: ethAdapter.contractConfig.ATOKEN.address,
             _value: ethAdapter.ethers.utils.parseEther(unformattedAmount),
@@ -25,7 +25,7 @@ export const commonEthRequests = {
      * @param { String } unformattedAmount - The unformatted amont of Mad Tokens to allow
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendMigrateRequest: async (ethAdapter: any, unformattedAmount: string) => {
+    migrate_sendMigrateRequest: async (ethAdapter: any, unformattedAmount: string) => {
         return await ethAdapter.contractMethods.ATOKEN.migrate_nonpayable_IN1_OUT1({
             amount: ethAdapter.ethers.utils.parseEther(unformattedAmount),
         });
@@ -41,7 +41,7 @@ export const commonEthRequests = {
      * @param { String } unformattedAmount - The unformatted amont of ATokens to allow
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendAtokenAllowanceForPublicStakingRequest: async (ethAdapter: any, amount: string) => {
+    staking_sendAtokenAllowanceForPublicStakingRequest: async (ethAdapter: any, amount: string) => {
         return await ethAdapter.contractMethods.ATOKEN.approve_nonpayable_IN2_OUT1({
             spender: ethAdapter.contractConfig.PUBLICSTAKING.address,
             amount: ethAdapter.ethers.utils.parseEther(amount),
@@ -53,7 +53,7 @@ export const commonEthRequests = {
      * @param { String } unformattedAmount - The unformatted amont of ATokens to open a staking position of
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendOpenPublicStakingPositionRequest: async (ethAdapter: any, unformattedAmount: string) => {
+    staking_sendOpenPublicStakingPositionRequest: async (ethAdapter: any, unformattedAmount: string) => {
         return await ethAdapter.contractMethods.PUBLICSTAKING.mint_nonpayable_IN1_OUT1({
             amount_: ethAdapter.ethers.utils.parseEther(unformattedAmount),
         });
@@ -64,7 +64,7 @@ export const commonEthRequests = {
      * @param { String } tokenId - uint256 tokenId to lockup
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendClaimAllPublicStakingRewardsRequest: async (ethAdapter: any, tokenId: string) => {
+    staking_sendClaimAllPublicStakingRewardsRequest: async (ethAdapter: any, tokenId: string) => {
         return await ethAdapter.contractMethods.PUBLICSTAKING.collectAllProfits_nonpayable_IN1_OUT2({
             tokenID_: tokenId,
         });
@@ -75,7 +75,7 @@ export const commonEthRequests = {
      * @param { String } tokenId - uint256 tokenId to lockup
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendUnstakePublicStakedPositionRequest: async (ethAdapter: any, tokenId: string) => {
+    staking_sendUnstakePublicStakedPositionRequest: async (ethAdapter: any, tokenId: string) => {
         ethAdapter.contractMethods.PUBLICSTAKING.burn_nonpayable_IN1_OUT2({
             tokenID_: tokenId,
         });
@@ -91,7 +91,7 @@ export const commonEthRequests = {
      * @param { String } tokenId - uint256 tokenId to lockup
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendLockStakePositionWithSafeTransferFromRequest: async (ethAdapter: any, tokenId: string) => {
+    lockup_sendLockStakePositionWithSafeTransferFromRequest: async (ethAdapter: any, tokenId: string) => {
         return await ethAdapter.contractMethods.PUBLICSTAKING.safeTransferFrom_nonpayable_IN3_OUT0({
             from: ethAdapter.getAddressByIndex(0),
             to: ethAdapter.contractConfig.LOCKUP.address,
@@ -103,7 +103,7 @@ export const commonEthRequests = {
      * @param { any } ethAdapter - EthAdapter from eth-adapter
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendCollectAllRewardsFromLockupRequest: async (ethAdapter: any) => {
+    lockup_sendCollectAllRewardsFromLockupRequest: async (ethAdapter: any) => {
         return await ethAdapter.contractMethods.LOCKUP.collectAllProfits_nonpayable_IN0_OUT2();
     },
     /**
@@ -111,7 +111,7 @@ export const commonEthRequests = {
      * @param { any } ethAdapter - EthAdapter from eth-adapter
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    estimateLockedPositionRewards: async (ethAdapter: any, tokenId: string) => {
+    lockup_estimateLockedPositionRewards: async (ethAdapter: any, tokenId: string) => {
         return await await ethAdapter.contractMethods.LOCKUP.estimateProfits_view_IN1_OUT2({
             tokenID_: tokenId,
         });
@@ -121,7 +121,7 @@ export const commonEthRequests = {
      * @param { any } ethAdapter - EthAdapter from eth-adapter
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    getEstimateForFinalBonusProfitsFromLockupPosition: async (ethAdapter: any, tokenId: string) => {
+    lockup_getEstimateForFinalBonusProfitsFromLockupPosition: async (ethAdapter: any, tokenId: string) => {
         return await await ethAdapter.contractMethods.LOCKUP.estimateFinalBonusWithProfits_view_IN1_OUT4({
             tokenID_: tokenId,
         });
@@ -139,7 +139,7 @@ export const commonEthRequests = {
      * @param { any } ethAdapter - EthAdapter from eth-adapter
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendAggregateLockupProfitsRequest: async (ethAdapter: any) => {
+    lockup_sendAggregateLockupProfitsRequest: async (ethAdapter: any) => {
         return await ethAdapter.contractMethods.LOCKUP.aggregateProfits_nonpayable_IN0_OUT0();
     },
     /**
@@ -156,7 +156,7 @@ export const commonEthRequests = {
      * @param { boolean } stakeExit Flag to decide the ALCA will be sent directly or staked as new publicStakingPosition
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendExitLockedPositionEarlyRequest: async (ethAdapter: any, exitValue: string, stakeExit: boolean) => {
+    lockup_sendExitLockedPositionEarlyRequest: async (ethAdapter: any, exitValue: string, stakeExit: boolean) => {
         return await await ethAdapter.contractMethods.LOCKUP.unlockEarly_nonpayable_IN2_OUT2({
             exitValue_: ethAdapter.ethers.utils.parseEther(exitValue),
             stakeExit_: stakeExit,
@@ -175,10 +175,79 @@ export const commonEthRequests = {
      * @param { boolean } stakeExit boolean flag indicating if the ALCA should be returned directly or staked
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    sendExitLockedPositionRequest: async (ethAdapter: any, toAddress: string, stakeExit: boolean) => {
+    lockup_sendExitLockedPositionRequest: async (ethAdapter: any, toAddress: string, stakeExit: boolean) => {
         return await ethAdapter.contractMethods.LOCKUP.unlock_nonpayable_IN2_OUT2({
             to_: toAddress,
             stakeExit_: stakeExit,
         });
     },
+
+    /////////////////////
+    // ROUTER REQUESTS //
+    ////////////////////
+
+    /**
+     * Send an approve allowance request for Router contract contract to spend X Mad Tokens
+     * @param { any } ethAdapter - EthAdapter from eth-adapter
+     * @param { String } unformattedAmount - The unformatted amont of Mad Tokens to allow
+     * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
+     */
+    psrouter_sendApproveMadTokenForPublicStakingRouterRequest: async (ethAdapter: any, unformattedAmount: string) => {
+        return await ethAdapter.contractMethods.MADTOKEN.approve_nonpayable_IN2_OUT1({
+            _spender: ethAdapter.contractConfig.PUBLICSTAKINGROUTER.address,
+            _value: ethAdapter.ethers.utils.parseEther(unformattedAmount),
+        });
+    },
+    /**
+     * Send an approve allowance request for Router contract to spend X ALCA Tokens
+     * @param { any } ethAdapter - EthAdapter from eth-adapter
+     * @param { String } unformattedAmount - The unformatted amont of Mad Tokens to allow
+     * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
+     */
+    psrouter_sendApproveAlcaTokenForPublicStakingRouterRequest: async (ethAdapter: any, unformattedAmount: string) => {
+        return await ethAdapter.contractMethods.ATOKEN.approve_nonpayable_IN2_OUT1({
+            _spender: ethAdapter.contractConfig.PUBLICSTAKINGROUTER.address,
+            _value: ethAdapter.ethers.utils.parseEther(unformattedAmount),
+        });
+    },
+    /**
+     * Send a Tx request to PublicStakingRouter for a migrateAndStake -- Must have approved >= specified amount of MadToken for PublicStakingRouter first
+     * @param { any } ethAdapter - EthAdapter from eth-adapter
+     * @param { String } unformattedAmount - The unformatted amont of Mad Tokens to allow
+     * @param { String } positionOwner - The address of the account that will own the staking position
+     * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
+     */
+    psrouter_sendMigrateAndStakeRequestToPublicStakingRouter: async (ethAdapter: any, unformattedAmount: string, stakePositionOwner: string) => {
+        return await ethAdapter.contractMethods.PUBLICSTAKINGROUTER.migrateAndStake_nonpayable_IN3_OUT0({
+            stakingAmount_: ethAdapter.ethers.utils.parseEther(unformattedAmount),
+            to: stakePositionOwner
+        })
+    },
+    /**
+     * Send a Tx request to PublicStakingRouter for a stake and lock -- Must have approved >= amount of ALCA for PublicStakingRouter first
+     * @param { any } ethAdapter - EthAdapter from eth-adapter
+     * @param { String } unformattedAmount - The unformatted amont of Mad Tokens to allow
+     * @param { String } positionOwner - The address of the account that will own the staking position
+     * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
+     */
+    psrouter_sendStakeAndLockRequestToPublicStakingRouter: async (ethAdapter: any, unformattedAmount: string, lockPositionOwner: string) => {
+        return await ethAdapter.contractMethods.PUBLICSTAKINGROUTER.stakeAndLock_nonpayable_IN2_OUT0({
+            stakingAmount_: ethAdapter.ethers.utils.parseEther(unformattedAmount),
+            to_: lockPositionOwner
+        })
+    },
+    /**
+     * Send a Tx request to PublicStakingRouter for a migrateStakeLock action -- Must have approved MadToken for PublicStakingRouter first
+     * @param { any } ethAdapter - EthAdapter from eth-adapter
+     * @param { String } unformattedAmount - The unformatted amont of Mad Tokens to allow
+     * @param { String } positionOwner - The address of the account that will own the staking position
+     * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
+     */
+    psrouter_sendMigrateStakeLockRequestToPublicStakingRouter: async(ethAdapter: any, unformattedMigrationAmount: string, unformattedStakingAmount, stakePositionOwner: string) => {
+        return await ethAdapter.contractMethods.PUBLICSTAKINGROUTER.migrateStakeAndLock_nonpayable_IN3_OUT0({
+            migrationAmount_: ethAdapter.ethers.utils.parseEther(unformattedMigrationAmount),
+            stakingAmount_: ethAdapter.ethers.utils.parseEther(unformattedStakingAmount),
+            to_: stakePositionOwner
+        })
+    }
 };

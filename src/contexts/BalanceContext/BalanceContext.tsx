@@ -101,6 +101,10 @@ export function BalanceContextProvider({ children, ethAdapter }) {
 
         await updateAllAddressesFromFactory();
 
+        // Get legacy token address and update it to the MadToken contract
+        let legacyTokenContractAddress = await ethAdapter.contractMethods.ATOKEN.getLegacyTokenAddress_view_IN0_OUT1()
+        ethAdapter.contractConfig["MADTOKEN"].address = legacyTokenContractAddress;
+
         // Get the BToken contract address and update contractConfig on ethAdapter if it's set to 0x0
         if (ethAdapter.contractConfig["BTOKEN"].address === "0x0") {
             console.warn("BToken was set to 0x0... using Factory.lookup() to populate BTOKEN address.");
