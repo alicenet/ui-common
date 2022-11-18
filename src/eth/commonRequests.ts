@@ -194,7 +194,7 @@ export const commonEthRequests = {
      */
     psrouter_sendApproveMadTokenForPublicStakingRouterRequest: async (ethAdapter: any, unformattedAmount: string) => {
         return await ethAdapter.contractMethods.MADTOKEN.approve_nonpayable_IN2_OUT1({
-            _spender: ethAdapter.contractConfig.PUBLICSTAKINGROUTER.address,
+            _spender: ethAdapter.contractConfig.STAKINGROUTERV1.address,
             _value: ethAdapter.ethers.utils.parseEther(unformattedAmount),
         });
     },
@@ -206,7 +206,7 @@ export const commonEthRequests = {
      */
     psrouter_sendApproveAlcaTokenForPublicStakingRouterRequest: async (ethAdapter: any, unformattedAmount: string) => {
         return await ethAdapter.contractMethods.ATOKEN.approve_nonpayable_IN2_OUT1({
-            _spender: ethAdapter.contractConfig.PUBLICSTAKINGROUTER.address,
+            _spender: ethAdapter.contractConfig.STAKINGROUTERV1.address,
             _value: ethAdapter.ethers.utils.parseEther(unformattedAmount),
         });
     },
@@ -218,7 +218,7 @@ export const commonEthRequests = {
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
     psrouter_sendMigrateAndStakeRequestToPublicStakingRouter: async (ethAdapter: any, unformattedAmount: string, stakePositionOwner: string) => {
-        return await ethAdapter.contractMethods.PUBLICSTAKINGROUTER.migrateAndStake_nonpayable_IN3_OUT0({
+        return await ethAdapter.contractMethods.STAKINGROUTERV1.migrateAndStake_nonpayable_IN3_OUT0({
             stakingAmount_: ethAdapter.ethers.utils.parseEther(unformattedAmount),
             to: stakePositionOwner
         })
@@ -231,7 +231,7 @@ export const commonEthRequests = {
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
     psrouter_sendStakeAndLockRequestToPublicStakingRouter: async (ethAdapter: any, unformattedAmount: string, lockPositionOwner: string) => {
-        return await ethAdapter.contractMethods.PUBLICSTAKINGROUTER.stakeAndLock_nonpayable_IN2_OUT0({
+        return await ethAdapter.contractMethods.STAKINGROUTERV1.stakeAndLock_nonpayable_IN2_OUT0({
             stakingAmount_: ethAdapter.ethers.utils.parseEther(unformattedAmount),
             to_: lockPositionOwner
         })
@@ -244,7 +244,7 @@ export const commonEthRequests = {
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
     psrouter_sendMigrateStakeLockRequestToPublicStakingRouter: async(ethAdapter: any, unformattedMigrationAmount: string, unformattedStakingAmount, stakePositionOwner: string) => {
-        return await ethAdapter.contractMethods.PUBLICSTAKINGROUTER.migrateStakeAndLock_nonpayable_IN3_OUT0({
+        return await ethAdapter.contractMethods.STAKINGROUTERV1.migrateStakeAndLock_nonpayable_IN3_OUT0({
             migrationAmount_: ethAdapter.ethers.utils.parseEther(unformattedMigrationAmount),
             stakingAmount_: ethAdapter.ethers.utils.parseEther(unformattedStakingAmount),
             to_: stakePositionOwner
