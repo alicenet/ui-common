@@ -1,36 +1,52 @@
 import React from "react";
-export declare const BalanceContext: React.Context<{
+/**
+ * @typedef ContractValue - A value/error object - Holds the state value if no errors hit while obtaining, else error will be populated
+ * @property { string | false } error - "" if no error, or string if errors occcured in getting the value
+ * @property { any } value - The context state value, will be false if error has occurred
+ */
+type GenericContextValue = {
+    error: string | false;
+    value: any;
+};
+/**
+ * @typedef LockedPosition
+ * @property { string } alcaReward -
+ * @property { string } ethrewards -
+ * @property { boolean } exists -
+ * @property { string } lockedAlca -
+ * @property { string } lockupPeriod -
+ * @property { string } penalty -
+ * @property { string } remainignRewards -
+ * @property { string } tokenId -
+ * @property { string } unlockDate -
+ */
+type LockedPosition = {
+    alcaReward: string;
+    ethReward: string;
+    exists: boolean;
+    lockedAlca: string;
+    lockupPeriod: string;
+    penalty: string;
+    remainingRewards: string;
+    tokenId: string;
+    unlockDate: string;
+};
+type ContextState = {
     trackedAddress: string;
-    allowances: {
-        alca: {};
-        alcb: {};
-        mad: {};
-    };
+    allowances: object;
     balances: {
-        alca: string;
-        alcb: string;
-        ethereum: string;
-        mad: string;
+        alca: GenericContextValue;
+        alcb: GenericContextValue;
+        mad: GenericContextValue;
+        ethereum: GenericContextValue;
     };
     positions: {
-        staked: any[];
-        lockedPosition: {
-            alcaReward: string;
-            ethReward: string;
-            exists: boolean;
-            lockedAlca: string;
-            lockupPeriod: string;
-            penalty: string;
-            remainingRewards: string;
-            tokenId: string;
-            unlockDate: string;
-        };
+        staked: GenericContextValue;
+        lockedPosition: LockedPosition;
     };
-    /**
-     * @param {EthAdapter} ethAdapter - Ethereum adapter to be used from eth-adapter package
-     */
-    updateBalances: (ethAdapter: any) => void;
-}>;
+    updateBalances: Function;
+};
+export declare const BalanceContext: React.Context<ContextState>;
 /**
  * @param {String} addressToTrack -
  * @param {Object[]} children -
@@ -41,3 +57,4 @@ export declare function BalanceContextProvider({ children, ethAdapter }: {
     children: any;
     ethAdapter: any;
 }): JSX.Element;
+export {};
