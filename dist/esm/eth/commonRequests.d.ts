@@ -44,7 +44,7 @@ export declare const commonEthRequests: {
      * @param { String } tokenId - uint256 tokenId to lockup
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
-    staking_sendUnstakePublicStakedPositionRequest: (ethAdapter: any, tokenId: string) => Promise<void>;
+    staking_sendUnstakePublicStakedPositionRequest: (ethAdapter: any, tokenId: string) => Promise<any>;
     /**
      * Send an safeTranderFrom request to send the staked position NFT to the Lockup contract to lock a staked position -- No allowance needed
      * @param { any } ethAdapter - EthAdapter from eth-adapter
