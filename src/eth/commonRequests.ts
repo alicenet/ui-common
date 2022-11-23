@@ -76,7 +76,7 @@ export const commonEthRequests = {
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
     staking_sendUnstakePublicStakedPositionRequest: async (ethAdapter: any, tokenId: string) => {
-        ethAdapter.contractMethods.PUBLICSTAKING.burn_nonpayable_IN1_OUT2({
+        return await ethAdapter.contractMethods.PUBLICSTAKING.burn_nonpayable_IN1_OUT2({
             tokenID_: tokenId,
         });
     },
