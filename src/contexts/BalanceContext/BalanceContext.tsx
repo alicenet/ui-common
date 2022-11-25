@@ -73,7 +73,7 @@ const defaultLockedPosition: LockedPosition = {
     ethReward: "n/a",
     exists: false,
     lockedAlca: "n/a",
-    lockupPeriod: "START" || "LOCKED" || "END",
+    lockupPeriod: "ENROLLMENT" || "STARTED" || "ENDED",
     penalty: "n/a",
     remainingRewards: "n/a",
     tokenId: "n/a",
@@ -459,11 +459,20 @@ async function _getPublicStakingPosition(ethAdapter: any, tokenId: string) {
 ///////////////////////////////
 
 async function getLockedPosition(ethAdapter, address): Promise<GenericContextValue> {
+
+    const getDiffInMonths = (startdate, endDate) => {
+        let months = (endDate.getFullYear() - startdate.getFullYear()) * 12;
+        months -= startdate.getMonth();
+        months += endDate.getMonth();
+        return months <= 0 ? 0 : months;
+    }
+
     try {
         const tokenId = await _getLockedPositionTokenIdForAddress(ethAdapter, address);
         const { payoutEth = 0, payoutToken = 0 } =
             tokenId > 0 ? await _estimateLockedPositionProfits(ethAdapter, tokenId) : {};
         const { shares = 0 } = tokenId > 0 ? await _getPublicStakingPosition(ethAdapter, tokenId) : 0;
+        const start = await ethAdapter.contractMethods.LOCKUP.getLockupStartBlock_view_IN0_OUT1();
         const end = await ethAdapter.contractMethods.LOCKUP.getLockupEndBlock_view_IN0_OUT1();
         const blockNumber = await ethAdapter.provider.getBlockNumber();
         const SCALING_FACTOR = await ethAdapter.contractMethods.LOCKUP.SCALING_FACTOR_view_IN0_OUT1();
@@ -471,12 +480,31 @@ async function getLockedPosition(ethAdapter, address): Promise<GenericContextVal
         const penalty = ethAdapter.ethers.BigNumber.from(FRACTION_RESERVED).mul(100).div(SCALING_FACTOR);
         const remainingRewards = 100 - penalty;
 
+        // Get rough time data using ETH block interval of 13.5
+        const lockupTimestamp = ethAdapter.ethers.BigNumber.from(end).sub(start).toString() * 13.5;
+        const endDate = new Date(new Date().getTime() + lockupTimestamp * 1000);
+        const months = getDiffInMonths(new Date(), endDate);
+
+        const lockupPeriodDefinition = (() => {
+            const BN = num => ethAdapter.ethers.BigNumber.from(num);
+            if (BN(blockNumber).lt(BN(start))) {
+                return "ENROLLMENT"
+            }
+            else if (BN(blockNumber).gt(BN(end))) {
+                return "ENDED"
+            }
+            else {
+                return "STARTED"
+            }
+        })()
+
         return generateContextValueResponse(false, {
             lockedAlca: ethAdapter.ethers.utils.formatEther(shares),
             payoutEth: ethAdapter.ethers.utils.formatEther(payoutEth),
             payoutToken: ethAdapter.ethers.utils.formatEther(payoutToken),
             tokenId: tokenId.toString(),
-            lockupPeriod: ethAdapter.ethers.BigNumber.from(end).gt(blockNumber) ? "LOCKED" : "END",
+            lockupPeriod: lockupPeriodDefinition,
+            lockupPeriodInMonths: months,
             penalty: penalty.toString(),
             blockUntilUnlock: ethAdapter.ethers.BigNumber.from(end).sub(blockNumber).toString(),
             remainingRewards,

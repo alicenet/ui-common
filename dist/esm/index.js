@@ -1,6 +1,6 @@
 import React from 'react';
 
-/*! *****************************************************************************
+/******************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -42,7 +42,7 @@ function __generator(thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -70,7 +70,7 @@ var defaultLockedPosition = {
     ethReward: "n/a",
     exists: false,
     lockedAlca: "n/a",
-    lockupPeriod: "START"  ,
+    lockupPeriod: "ENROLLMENT"  ,
     penalty: "n/a",
     remainingRewards: "n/a",
     tokenId: "n/a",
@@ -565,62 +565,89 @@ function _getPublicStakingPosition(ethAdapter, tokenId) {
 ///////////////////////////////
 function getLockedPosition(ethAdapter, address) {
     return __awaiter(this, void 0, void 0, function () {
-        var tokenId, _a, _b, payoutEth, _c, payoutToken, _d, _e, shares, _f, end, blockNumber, SCALING_FACTOR, FRACTION_RESERVED, penalty, remainingRewards, ex_6;
+        var getDiffInMonths, tokenId, _a, _b, payoutEth, _c, payoutToken, _d, _e, shares, _f, start_1, end_1, blockNumber_1, SCALING_FACTOR, FRACTION_RESERVED, penalty, remainingRewards, lockupTimestamp, endDate, months, lockupPeriodDefinition, ex_6;
         return __generator(this, function (_g) {
             switch (_g.label) {
                 case 0:
-                    _g.trys.push([0, 12, , 13]);
-                    return [4 /*yield*/, _getLockedPositionTokenIdForAddress(ethAdapter, address)];
+                    getDiffInMonths = function (startdate, endDate) {
+                        var months = (endDate.getFullYear() - startdate.getFullYear()) * 12;
+                        months -= startdate.getMonth();
+                        months += endDate.getMonth();
+                        return months <= 0 ? 0 : months;
+                    };
+                    _g.label = 1;
                 case 1:
-                    tokenId = _g.sent();
-                    if (!(tokenId > 0)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, _estimateLockedPositionProfits(ethAdapter, tokenId)];
+                    _g.trys.push([1, 14, , 15]);
+                    return [4 /*yield*/, _getLockedPositionTokenIdForAddress(ethAdapter, address)];
                 case 2:
-                    _d = _g.sent();
-                    return [3 /*break*/, 4];
+                    tokenId = _g.sent();
+                    if (!(tokenId > 0)) return [3 /*break*/, 4];
+                    return [4 /*yield*/, _estimateLockedPositionProfits(ethAdapter, tokenId)];
                 case 3:
-                    _d = {};
-                    _g.label = 4;
+                    _d = _g.sent();
+                    return [3 /*break*/, 5];
                 case 4:
-                    _a = _d, _b = _a.payoutEth, payoutEth = _b === void 0 ? 0 : _b, _c = _a.payoutToken, payoutToken = _c === void 0 ? 0 : _c;
-                    if (!(tokenId > 0)) return [3 /*break*/, 6];
-                    return [4 /*yield*/, _getPublicStakingPosition(ethAdapter, tokenId)];
+                    _d = {};
+                    _g.label = 5;
                 case 5:
-                    _f = _g.sent();
-                    return [3 /*break*/, 7];
+                    _a = _d, _b = _a.payoutEth, payoutEth = _b === void 0 ? 0 : _b, _c = _a.payoutToken, payoutToken = _c === void 0 ? 0 : _c;
+                    if (!(tokenId > 0)) return [3 /*break*/, 7];
+                    return [4 /*yield*/, _getPublicStakingPosition(ethAdapter, tokenId)];
                 case 6:
-                    _f = 0;
-                    _g.label = 7;
+                    _f = _g.sent();
+                    return [3 /*break*/, 8];
                 case 7:
-                    _e = (_f).shares, shares = _e === void 0 ? 0 : _e;
-                    return [4 /*yield*/, ethAdapter.contractMethods.LOCKUP.getLockupEndBlock_view_IN0_OUT1()];
+                    _f = 0;
+                    _g.label = 8;
                 case 8:
-                    end = _g.sent();
-                    return [4 /*yield*/, ethAdapter.provider.getBlockNumber()];
+                    _e = (_f).shares, shares = _e === void 0 ? 0 : _e;
+                    return [4 /*yield*/, ethAdapter.contractMethods.LOCKUP.getLockupStartBlock_view_IN0_OUT1()];
                 case 9:
-                    blockNumber = _g.sent();
-                    return [4 /*yield*/, ethAdapter.contractMethods.LOCKUP.SCALING_FACTOR_view_IN0_OUT1()];
+                    start_1 = _g.sent();
+                    return [4 /*yield*/, ethAdapter.contractMethods.LOCKUP.getLockupEndBlock_view_IN0_OUT1()];
                 case 10:
+                    end_1 = _g.sent();
+                    return [4 /*yield*/, ethAdapter.provider.getBlockNumber()];
+                case 11:
+                    blockNumber_1 = _g.sent();
+                    return [4 /*yield*/, ethAdapter.contractMethods.LOCKUP.SCALING_FACTOR_view_IN0_OUT1()];
+                case 12:
                     SCALING_FACTOR = _g.sent();
                     return [4 /*yield*/, ethAdapter.contractMethods.LOCKUP.FRACTION_RESERVED_view_IN0_OUT1()];
-                case 11:
+                case 13:
                     FRACTION_RESERVED = _g.sent();
                     penalty = ethAdapter.ethers.BigNumber.from(FRACTION_RESERVED).mul(100).div(SCALING_FACTOR);
                     remainingRewards = 100 - penalty;
+                    lockupTimestamp = ethAdapter.ethers.BigNumber.from(end_1).sub(start_1).toString() * 13.5;
+                    endDate = new Date(new Date().getTime() + lockupTimestamp * 1000);
+                    months = getDiffInMonths(new Date(), endDate);
+                    lockupPeriodDefinition = (function () {
+                        var BN = function (num) { return ethAdapter.ethers.BigNumber.from(num); };
+                        if (BN(blockNumber_1).lt(BN(start_1))) {
+                            return "ENROLLMENT";
+                        }
+                        else if (BN(blockNumber_1).gt(BN(end_1))) {
+                            return "ENDED";
+                        }
+                        else {
+                            return "STARTED";
+                        }
+                    })();
                     return [2 /*return*/, generateContextValueResponse(false, {
                             lockedAlca: ethAdapter.ethers.utils.formatEther(shares),
                             payoutEth: ethAdapter.ethers.utils.formatEther(payoutEth),
                             payoutToken: ethAdapter.ethers.utils.formatEther(payoutToken),
                             tokenId: tokenId.toString(),
-                            lockupPeriod: ethAdapter.ethers.BigNumber.from(end).gt(blockNumber) ? "LOCKED" : "END",
+                            lockupPeriod: lockupPeriodDefinition,
+                            lockupPeriodInMonths: months,
                             penalty: penalty.toString(),
-                            blockUntilUnlock: ethAdapter.ethers.BigNumber.from(end).sub(blockNumber).toString(),
+                            blockUntilUnlock: ethAdapter.ethers.BigNumber.from(end_1).sub(blockNumber_1).toString(),
                             remainingRewards: remainingRewards
                         })];
-                case 12:
+                case 14:
                     ex_6 = _g.sent();
                     return [2 /*return*/, generateContextValueResponse("getLockedPosition()" + ex_6.message)];
-                case 13: return [2 /*return*/];
+                case 15: return [2 /*return*/];
             }
         });
     });
