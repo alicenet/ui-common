@@ -162,7 +162,7 @@ function BalanceContextProvider(_a) {
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
-                                    cSalts = ["AToken", "BToken", "PublicStaking", "Lockup", "ValidatorStaking"];
+                                    cSalts = ["ALCA", "ALCB", "PublicStaking", "Lockup", "ValidatorStaking", "StakingRouterV1"];
                                     _i = 0, cSalts_1 = cSalts;
                                     _a.label = 1;
                                 case 1:

@@ -160,7 +160,7 @@ export function BalanceContextProvider({ children, ethAdapter }) {
         await ethAdapter.updateEthereumBalance()
 
         const updateAllAddressesFromFactory = async () => {
-            let cSalts = ["AToken", "BToken", "PublicStaking", "Lockup", "ValidatorStaking"];
+            let cSalts = ["ALCA", "ALCB", "PublicStaking", "Lockup", "ValidatorStaking", "StakingRouterV1"];
             for (let cSalt of cSalts) {
                 let addressFromFactory = await ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
                     salt_: ethAdapter.ethers.utils.formatBytes32String(cSalt),
