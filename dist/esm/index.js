@@ -185,18 +185,18 @@ function BalanceContextProvider(_a) {
                     return [4 /*yield*/, updateAllAddressesFromFactory()];
                 case 2:
                     _d.sent();
-                    return [4 /*yield*/, ethAdapter.contractMethods.ATOKEN.getLegacyTokenAddress_view_IN0_OUT1()];
+                    return [4 /*yield*/, ethAdapter.contractMethods.ALCA.getLegacyTokenAddress_view_IN0_OUT1()];
                 case 3:
                     legacyTokenContractAddress = _d.sent();
                     ethAdapter.contractConfig["MADTOKEN"].address = legacyTokenContractAddress;
-                    if (!(ethAdapter.contractConfig["BTOKEN"].address === "0x0")) return [3 /*break*/, 5];
-                    console.warn("BToken was set to 0x0... using Factory.lookup() to populate BTOKEN address.");
+                    if (!(ethAdapter.contractConfig["ALCB"].address === "0x0")) return [3 /*break*/, 5];
+                    console.warn("BToken was set to 0x0... using Factory.lookup() to populate ALCB address.");
                     return [4 /*yield*/, ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
                             salt_: ethAdapter.ethers.utils.formatBytes32String("BToken")
                         })];
                 case 4:
                     bTokenAddress = _d.sent();
-                    ethAdapter.contractConfig["BTOKEN"].address = bTokenAddress;
+                    ethAdapter.contractConfig["ALCB"].address = bTokenAddress;
                     _d.label = 5;
                 case 5: return [4 /*yield*/, resolveBalancePromiseFunctionsNeatly([
                         [prettyFxNames.getMadBalance, [ethAdapter, address]],
@@ -239,7 +239,7 @@ function BalanceContextProvider(_a) {
                             _b),
                         alcb: {},
                         mad: (_c = {},
-                            _c[ethAdapter.contractConfig.ATOKEN.address] = alcaMadAllowance,
+                            _c[ethAdapter.contractConfig.ALCA.address] = alcaMadAllowance,
                             _c[ethAdapter.contractConfig.STAKINGROUTERV1.address] = madRouterAllowance,
                             _c)
                     };
@@ -356,7 +356,7 @@ function getATokenAllowanceForMad(ethAdapter, address) {
             switch (_c.label) {
                 case 0:
                     _c.trys.push([0, 3, , 4]);
-                    return [4 /*yield*/, ((_b = (_a = ethAdapter === null || ethAdapter === void 0 ? void 0 : ethAdapter.contractConfig) === null || _a === void 0 ? void 0 : _a.ATOKEN) === null || _b === void 0 ? void 0 : _b.address)];
+                    return [4 /*yield*/, ((_b = (_a = ethAdapter === null || ethAdapter === void 0 ? void 0 : ethAdapter.contractConfig) === null || _a === void 0 ? void 0 : _a.ALCA) === null || _b === void 0 ? void 0 : _b.address)];
                 case 1:
                     aTokenAddress = _c.sent();
                     if (!aTokenAddress) {
@@ -384,7 +384,7 @@ function getAlcaBalance(ethAdapter, address) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, ethAdapter.contractMethods.ATOKEN.balanceOf_view_IN1_OUT1({
+                    return [4 /*yield*/, ethAdapter.contractMethods.ALCA.balanceOf_view_IN1_OUT1({
                             account: address
                         })];
                 case 1:
@@ -405,7 +405,7 @@ function getAlcbBalance(ethAdapter, address) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, ethAdapter.contractMethods.BTOKEN.balanceOf_view_IN1_OUT1({
+                    return [4 /*yield*/, ethAdapter.contractMethods.ALCB.balanceOf_view_IN1_OUT1({
                             account: address
                         })];
                 case 1:
@@ -691,7 +691,7 @@ function getAlcaAllowanceForStakeRouter(ethAdapter, address) {
                     if (!publicStakingAddress) {
                         throw new Error("Unable to determine STAKINGROUTERV1 address from passed ethAdapter. Make sure ethAdapter.contractConfig is populating");
                     }
-                    return [4 /*yield*/, ethAdapter.contractMethods.ATOKEN.allowance_view_IN2_OUT1({
+                    return [4 /*yield*/, ethAdapter.contractMethods.ALCA.allowance_view_IN2_OUT1({
                             owner: address,
                             spender: publicStakingAddress
                         })];
@@ -763,7 +763,7 @@ var commonEthRequests = {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, ethAdapter.contractMethods.MADTOKEN.approve_nonpayable_IN2_OUT1({
-                        _spender: ethAdapter.contractConfig.ATOKEN.address,
+                        _spender: ethAdapter.contractConfig.ALCA.address,
                         _value: ethAdapter.ethers.utils.parseEther(unformattedAmount)
                     })];
                 case 1: return [2 /*return*/, _a.sent()];
@@ -780,7 +780,7 @@ var commonEthRequests = {
     migrate_sendMigrateRequest: function (ethAdapter, unformattedAmount) { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, ethAdapter.contractMethods.ATOKEN.migrate_nonpayable_IN1_OUT1({
+                case 0: return [4 /*yield*/, ethAdapter.contractMethods.ALCA.migrate_nonpayable_IN1_OUT1({
                         amount: ethAdapter.ethers.utils.parseEther(unformattedAmount)
                     })];
                 case 1: return [2 /*return*/, _a.sent()];
@@ -799,7 +799,7 @@ var commonEthRequests = {
     staking_sendAtokenAllowanceForPublicStakingRequest: function (ethAdapter, amount) { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, ethAdapter.contractMethods.ATOKEN.approve_nonpayable_IN2_OUT1({
+                case 0: return [4 /*yield*/, ethAdapter.contractMethods.ALCA.approve_nonpayable_IN2_OUT1({
                         spender: ethAdapter.contractConfig.PUBLICSTAKING.address,
                         amount: ethAdapter.ethers.utils.parseEther(amount)
                     })];
@@ -1021,7 +1021,7 @@ var commonEthRequests = {
     psrouter_sendApproveAlcaTokenForPublicStakingRouterRequest: function (ethAdapter, unformattedAmount) { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, ethAdapter.contractMethods.ATOKEN.approve_nonpayable_IN2_OUT1({
+                case 0: return [4 /*yield*/, ethAdapter.contractMethods.ALCA.approve_nonpayable_IN2_OUT1({
                         _spender: ethAdapter.contractConfig.STAKINGROUTERV1.address,
                         _value: ethAdapter.ethers.utils.parseEther(unformattedAmount)
                     })];
