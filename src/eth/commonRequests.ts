@@ -14,7 +14,7 @@ export const commonEthRequests = {
      */
     migrate_sendMadAllowanceForATokenRequest: async (ethAdapter: any, unformattedAmount: string) => {
         return await ethAdapter.contractMethods.MADTOKEN.approve_nonpayable_IN2_OUT1({
-            _spender: ethAdapter.contractConfig.ATOKEN.address,
+            _spender: ethAdapter.contractConfig.ALCA.address,
             _value: ethAdapter.ethers.utils.parseEther(unformattedAmount),
         });
     },
@@ -26,7 +26,7 @@ export const commonEthRequests = {
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
     migrate_sendMigrateRequest: async (ethAdapter: any, unformattedAmount: string) => {
-        return await ethAdapter.contractMethods.ATOKEN.migrate_nonpayable_IN1_OUT1({
+        return await ethAdapter.contractMethods.ALCA.migrate_nonpayable_IN1_OUT1({
             amount: ethAdapter.ethers.utils.parseEther(unformattedAmount),
         });
     },
@@ -42,7 +42,7 @@ export const commonEthRequests = {
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
     staking_sendAtokenAllowanceForPublicStakingRequest: async (ethAdapter: any, amount: string) => {
-        return await ethAdapter.contractMethods.ATOKEN.approve_nonpayable_IN2_OUT1({
+        return await ethAdapter.contractMethods.ALCA.approve_nonpayable_IN2_OUT1({
             spender: ethAdapter.contractConfig.PUBLICSTAKING.address,
             amount: ethAdapter.ethers.utils.parseEther(amount),
         });
@@ -205,7 +205,7 @@ export const commonEthRequests = {
      * @returns { any } - Return { error: msg } from ethAdapter if error, else Tx Object from ethers
      */
     psrouter_sendApproveAlcaTokenForPublicStakingRouterRequest: async (ethAdapter: any, unformattedAmount: string) => {
-        return await ethAdapter.contractMethods.ATOKEN.approve_nonpayable_IN2_OUT1({
+        return await ethAdapter.contractMethods.ALCA.approve_nonpayable_IN2_OUT1({
             _spender: ethAdapter.contractConfig.STAKINGROUTERV1.address,
             _value: ethAdapter.ethers.utils.parseEther(unformattedAmount),
         });

@@ -172,16 +172,16 @@ export function BalanceContextProvider({ children, ethAdapter }) {
         await updateAllAddressesFromFactory();
 
         // Get legacy token address and update it to the MadToken contract
-        let legacyTokenContractAddress = await ethAdapter.contractMethods.ATOKEN.getLegacyTokenAddress_view_IN0_OUT1()
+        let legacyTokenContractAddress = await ethAdapter.contractMethods.ALCA.getLegacyTokenAddress_view_IN0_OUT1()
         ethAdapter.contractConfig["MADTOKEN"].address = legacyTokenContractAddress;
 
         // Get the BToken contract address and update contractConfig on ethAdapter if it's set to 0x0
-        if (ethAdapter.contractConfig["BTOKEN"].address === "0x0") {
-            console.warn("BToken was set to 0x0... using Factory.lookup() to populate BTOKEN address.");
+        if (ethAdapter.contractConfig["ALCB"].address === "0x0") {
+            console.warn("BToken was set to 0x0... using Factory.lookup() to populate ALCB address.");
             let bTokenAddress = await ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
                 salt_: ethAdapter.ethers.utils.formatBytes32String("BToken"),
             });
-            ethAdapter.contractConfig["BTOKEN"].address = bTokenAddress;
+            ethAdapter.contractConfig["ALCB"].address = bTokenAddress;
         }
 
         // Setup pretty function resolution
@@ -233,7 +233,7 @@ export function BalanceContextProvider({ children, ethAdapter }) {
 
             },
             mad: {
-                [ethAdapter.contractConfig.ATOKEN.address]: alcaMadAllowance,
+                [ethAdapter.contractConfig.ALCA.address]: alcaMadAllowance,
                 [ethAdapter.contractConfig.STAKINGROUTERV1.address]: madRouterAllowance,
             },
         };
@@ -338,7 +338,7 @@ async function getMadBalance(ethAdapter: any, address: string): Promise<GenericC
 
 async function getATokenAllowanceForMad(ethAdapter: any, address: string): Promise<GenericContextValue> {
     try {
-        let aTokenAddress = await ethAdapter?.contractConfig?.ATOKEN?.address; // UPDATE eth-adapter and get ATOken address from the newly exposed config
+        let aTokenAddress = await ethAdapter?.contractConfig?.ALCA?.address; // UPDATE eth-adapter and get ATOken address from the newly exposed config
         if (!aTokenAddress) {
             throw new Error(
                 "Unable to determine AToken address from passed ethAdapter. Make sure ethAdapter.contractConfig is populating"
@@ -356,7 +356,7 @@ async function getATokenAllowanceForMad(ethAdapter: any, address: string): Promi
 
 async function getAlcaBalance(ethAdapter: any, address: string): Promise<GenericContextValue> {
     try {
-        let res = await ethAdapter.contractMethods.ATOKEN.balanceOf_view_IN1_OUT1({
+        let res = await ethAdapter.contractMethods.ALCA.balanceOf_view_IN1_OUT1({
             account: address,
         });
         return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
@@ -367,7 +367,7 @@ async function getAlcaBalance(ethAdapter: any, address: string): Promise<Generic
 
 async function getAlcbBalance(ethAdapter: any, address: string): Promise<GenericContextValue> {
     try {
-        let res = await ethAdapter.contractMethods.BTOKEN.balanceOf_view_IN1_OUT1({
+        let res = await ethAdapter.contractMethods.ALCB.balanceOf_view_IN1_OUT1({
             account: address,
         });
         return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
@@ -540,7 +540,7 @@ async function getAlcaAllowanceForStakeRouter(ethAdapter: any, address: string):
                 "Unable to determine STAKINGROUTERV1 address from passed ethAdapter. Make sure ethAdapter.contractConfig is populating"
             );
         }
-        let allowance = await ethAdapter.contractMethods.ATOKEN.allowance_view_IN2_OUT1({
+        let allowance = await ethAdapter.contractMethods.ALCA.allowance_view_IN2_OUT1({
             owner: address,
             spender: publicStakingAddress,
         });
