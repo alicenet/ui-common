@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 /**
  * @typedef ContractValue - A value/error object - Holds the state value if no errors hit while obtaining, else error will be populated
  * @property { string | false } error - "" if no error, or string if errors occcured in getting the value
@@ -54,7 +54,6 @@ export declare const BalanceContext: React.Context<ContextState>;
  * @returns
  */
 export declare function BalanceContextProvider({ children, ethAdapter }: {
-    children: any;
-    ethAdapter: any;
+    children: Component;
 }): JSX.Element;
 export {};
