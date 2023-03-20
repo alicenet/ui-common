@@ -442,6 +442,8 @@ function getStakedAlcaPositions(ethAdapter, address) {
                         positions.push({
                             tokenId: meta.tokenId.toString(),
                             shares: ethAdapter.ethers.utils.formatEther(meta.shares),
+                            claimRewardsAfter: meta.claimRewardsAfter.value,
+                            unstakePositionAfter: meta.unstakeAfter.value,
                             ethRewards: ethAdapter.ethers.utils.formatEther(meta.ethRewards.toString()),
                             alcaRewards: ethAdapter.ethers.utils.formatEther(meta.alcaRewards.toString())
                         });
@@ -488,7 +490,7 @@ function _getOwnedPublicStakingTokenIDs(ethAdapter, address) {
 }
 function _getPublicStakingTokenMetadataFromTokenIdArray(ethAdapter, tokenIds) {
     return __awaiter(this, void 0, void 0, function () {
-        var meta, _i, tokenIds_1, id, metadata, attributes, shares, ethRewards, alcaRewards;
+        var meta, _i, tokenIds_1, id, metadata, attributes, shares, unstakeAfter, claimRewardsAfter, ethRewards, alcaRewards;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -508,13 +510,15 @@ function _getPublicStakingTokenMetadataFromTokenIdArray(ethAdapter, tokenIds) {
                     }
                     attributes = parsePublicStakingTokenMetaData(metadata).attributes;
                     shares = findPublicStakingTokenAttributeByName(attributes, "Shares");
+                    unstakeAfter = findPublicStakingTokenAttributeByName(attributes, "Free After");
+                    claimRewardsAfter = findPublicStakingTokenAttributeByName(attributes, "Withdraw Free After");
                     return [4 /*yield*/, _estimatePublicStakingRewardEthCollection(ethAdapter, id)];
                 case 3:
                     ethRewards = _a.sent();
                     return [4 /*yield*/, _estimatePublicStakingRewardAlcaCollection(ethAdapter, id)];
                 case 4:
                     alcaRewards = _a.sent();
-                    meta.push({ tokenId: id, shares: shares.value, ethRewards: ethRewards, alcaRewards: alcaRewards });
+                    meta.push({ tokenId: id, shares: shares.value, unstakeAfter: unstakeAfter, claimRewardsAfter: claimRewardsAfter, ethRewards: ethRewards, alcaRewards: alcaRewards });
                     _a.label = 5;
                 case 5:
                     _i++;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 
 /**
  * @typedef ContractValue - A value/error object - Holds the state value if no errors hit while obtaining, else error will be populated
@@ -146,7 +146,7 @@ const prettyFunctionIDs = {
  * @param {EthAdapter} ethAdapter - eth-adapter required, must be passed -- Used to check balances
  * @returns
  */
-export function BalanceContextProvider({ children, ethAdapter }) {
+export function BalanceContextProvider({ children, ethAdapter }: {children: Component}) {
     const [contextState, setContextState] = React.useState(defaultContextState);
 
     const updateBalances = async (ethAdapter) => {
@@ -327,7 +327,7 @@ async function resolveBalancePromiseFunctionsNeatly(promiseFunctions: any[]): Pr
 
 async function getMadBalance(ethAdapter: any, address: string): Promise<GenericContextValue> {
     try {
-        let res = await ethAdapter.contractMethods.MADTOKEN.balanceOf_view_IN1_OUT1({
+        const res = await ethAdapter.contractMethods.MADTOKEN.balanceOf_view_IN1_OUT1({
             _owner: address,
         });
         return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
@@ -338,13 +338,13 @@ async function getMadBalance(ethAdapter: any, address: string): Promise<GenericC
 
 async function getATokenAllowanceForMad(ethAdapter: any, address: string): Promise<GenericContextValue> {
     try {
-        let aTokenAddress = await ethAdapter?.contractConfig?.ALCA?.address; // UPDATE eth-adapter and get ATOken address from the newly exposed config
+        const aTokenAddress = await ethAdapter?.contractConfig?.ALCA?.address; // UPDATE eth-adapter and get ATOken address from the newly exposed config
         if (!aTokenAddress) {
             throw new Error(
                 "Unable to determine AToken address from passed ethAdapter. Make sure ethAdapter.contractConfig is populating"
             );
         }
-        let allowance = await ethAdapter.contractMethods.MADTOKEN.allowance_view_IN2_OUT1({
+        const allowance = await ethAdapter.contractMethods.MADTOKEN.allowance_view_IN2_OUT1({
             _owner: address,
             _spender: aTokenAddress,
         });
@@ -356,7 +356,7 @@ async function getATokenAllowanceForMad(ethAdapter: any, address: string): Promi
 
 async function getAlcaBalance(ethAdapter: any, address: string): Promise<GenericContextValue> {
     try {
-        let res = await ethAdapter.contractMethods.ALCA.balanceOf_view_IN1_OUT1({
+        const res = await ethAdapter.contractMethods.ALCA.balanceOf_view_IN1_OUT1({
             account: address,
         });
         return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
@@ -367,7 +367,7 @@ async function getAlcaBalance(ethAdapter: any, address: string): Promise<Generic
 
 async function getAlcbBalance(ethAdapter: any, address: string): Promise<GenericContextValue> {
     try {
-        let res = await ethAdapter.contractMethods.ALCB.balanceOf_view_IN1_OUT1({
+        const res = await ethAdapter.contractMethods.ALCB.balanceOf_view_IN1_OUT1({
             account: address,
         });
         return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
@@ -383,12 +383,14 @@ async function getStakedAlcaPositions(ethAdapter: any, address: string): Promise
     try {
         const tokenIds = await _getOwnedPublicStakingTokenIDs(ethAdapter, address);
         const metas = await _getPublicStakingTokenMetadataFromTokenIdArray(ethAdapter, tokenIds);
-        let positions = [];
+        const positions = [];
         // Construct and parse positions
-        for (let meta of metas) {
+        for (const meta of metas) {
             positions.push({
                 tokenId: meta.tokenId.toString(),
                 shares: ethAdapter.ethers.utils.formatEther(meta.shares),
+                claimRewardsAfter: meta.claimRewardsAfter.value,
+                unstakePositionAfter: meta.unstakeAfter.value,
                 ethRewards: ethAdapter.ethers.utils.formatEther(meta.ethRewards.toString()),
                 alcaRewards: ethAdapter.ethers.utils.formatEther(meta.alcaRewards.toString()),
             });
@@ -404,7 +406,7 @@ async function _getOwnedPublicStakingTokenIDs(ethAdapter: any, address: string):
     let fetching = true;
     let index = 0;
     while (fetching) {
-        let tokenId = await ethAdapter.contractMethods.PUBLICSTAKING.tokenOfOwnerByIndex_view_IN2_OUT1({
+        const tokenId = await ethAdapter.contractMethods.PUBLICSTAKING.tokenOfOwnerByIndex_view_IN2_OUT1({
             owner: address,
             index: index,
         });
@@ -429,9 +431,11 @@ async function _getPublicStakingTokenMetadataFromTokenIdArray(ethAdapter: any, t
         }
         const { attributes } = parsePublicStakingTokenMetaData(metadata);
         const shares = findPublicStakingTokenAttributeByName(attributes, "Shares");
+        const unstakeAfter = findPublicStakingTokenAttributeByName(attributes, "Free After");
+        const claimRewardsAfter = findPublicStakingTokenAttributeByName(attributes, "Withdraw Free After");
         const ethRewards = await _estimatePublicStakingRewardEthCollection(ethAdapter, id);
         const alcaRewards = await _estimatePublicStakingRewardAlcaCollection(ethAdapter, id);
-        meta.push({ tokenId: id, shares: shares.value, ethRewards, alcaRewards });
+        meta.push({ tokenId: id, shares: shares.value, unstakeAfter: unstakeAfter, claimRewardsAfter: claimRewardsAfter, ethRewards, alcaRewards });
     }
     return meta;
 }
