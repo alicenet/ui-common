@@ -146,8 +146,9 @@ const prettyFunctionIDs = {
  * @param {EthAdapter} ethAdapter - eth-adapter required, must be passed -- Used to check balances
  * @returns
  */
-export function BalanceContextProvider({ children, ethAdapter }: {children: Component}) {
+export function BalanceContextProvider({ children, ethAdapter }: { children: Component }) {
     const [contextState, setContextState] = React.useState(defaultContextState);
+    const [addressesFetched, setAddressesFetched] = React.useState(false)
 
     const updateBalances = async (ethAdapter) => {
         if (!ethAdapter) {
@@ -162,27 +163,40 @@ export function BalanceContextProvider({ children, ethAdapter }: {children: Comp
         const updateAllAddressesFromFactory = async () => {
             let cSalts = ["ALCA", "ALCB", "PublicStaking", "Lockup", "ValidatorStaking", "StakingRouterV1"];
             for (let cSalt of cSalts) {
-                let addressFromFactory = await ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
-                    salt_: ethAdapter.ethers.utils.formatBytes32String(cSalt),
-                });
-                ethAdapter.contractConfig[cSalt.toUpperCase()].address = addressFromFactory;
+                if (cSalt === "ALCB") {
+                    // Use environment variable for ALCB -- Lookup will not work
+                    console.warn("Factory resolution of ALCB skipped, using environment instead -- If 0x0a, verify environment is correct set")
+                    ethAdapter.contractConfig[cSalt.toLocaleUpperCase()].address = process.env.REACT_APP__ALCB_CONTRACT_ADDRESS || "0x0a"
+                } else {
+                    const salt = ethAdapter.ethers.utils.formatBytes32String(cSalt)
+                    let addressFromFactory = await ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
+                        salt_: salt,
+                    });
+                    ethAdapter.contractConfig[cSalt.toUpperCase()].address = addressFromFactory;
+                }
             }
+            setAddressesFetched(true)
         };
 
-        await updateAllAddressesFromFactory();
+        if (!addressesFetched) {
+            await updateAllAddressesFromFactory();
+        }
 
         // Get legacy token address and update it to the MadToken contract
         let legacyTokenContractAddress = await ethAdapter.contractMethods.ALCA.getLegacyTokenAddress_view_IN0_OUT1()
         ethAdapter.contractConfig["MADTOKEN"].address = legacyTokenContractAddress;
 
         // Get the BToken contract address and update contractConfig on ethAdapter if it's set to 0x0
-        if (ethAdapter.contractConfig["ALCB"].address === "0x0") {
-            console.warn("BToken was set to 0x0... using Factory.lookup() to populate ALCB address.");
-            let bTokenAddress = await ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
-                salt_: ethAdapter.ethers.utils.formatBytes32String("BToken"),
-            });
-            ethAdapter.contractConfig["ALCB"].address = bTokenAddress;
-        }
+        /**
+         * -- Legacy for old BToken
+            if (ethAdapter.contractConfig["ALCB"].address === "0x0") {
+                console.warn("BToken was set to 0x0... using Factory.lookup() to populate ALCB address.");
+                let bTokenAddress = await ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
+                    salt_: ethAdapter.ethers.utils.formatBytes32String("BToken"),
+                });
+                ethAdapter.contractConfig["ALCB"].address = bTokenAddress;
+            }
+        */
 
         // Setup pretty function resolution
         let functionResults = await resolveBalancePromiseFunctionsNeatly([
@@ -265,6 +279,7 @@ export function BalanceContextProvider({ children, ethAdapter }: {children: Comp
     React.useEffect(() => {
         const balanceCheckInterval = async () => {
             if (!!ethAdapter.connectedAccount) {
+                console.log(ethAdapter)
                 updateBalances(ethAdapter);
             }
             await sleep(10000);
@@ -369,7 +384,7 @@ async function getAlcbBalance(ethAdapter: any, address: string): Promise<Generic
     try {
         const res = await ethAdapter.contractMethods.ALCB.balanceOf_view_IN1_OUT1({
             account: address,
-        });
+        }); 
         return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
     } catch (ex) {
         return generateContextValueResponse("getAlcbBalance(): " + ex.message);
