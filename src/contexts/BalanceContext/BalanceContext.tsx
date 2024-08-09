@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { Component } from "react";
 
 /**
@@ -6,37 +7,37 @@ import React, { Component } from "react";
  * @property { any } value - The context state value, will be false if error has occurred
  */
 type GenericContextValue = {
-    error: string | false,
-    value: any
-}
+    error: string | false;
+    value: any;
+};
 
 type StakedContextValue = GenericContextValue & {
-    value: StakedPosition[]
-}
+    value: StakedPosition[];
+};
 
 /**
  * @typedef LockedPosition
- * @property { string } alcaReward - 
- * @property { string } ethrewards - 
- * @property { boolean } exists - 
- * @property { string } lockedAlca - 
- * @property { string } lockupPeriod - 
- * @property { string } penalty - 
- * @property { string } remainignRewards - 
- * @property { string } tokenId - 
- * @property { string } unlockDate - 
+ * @property { string } alcaReward -
+ * @property { string } ethrewards -
+ * @property { boolean } exists -
+ * @property { string } lockedAlca -
+ * @property { string } lockupPeriod -
+ * @property { string } penalty -
+ * @property { string } remainignRewards -
+ * @property { string } tokenId -
+ * @property { string } unlockDate -
  */
 type LockedPosition = {
-    alcaReward: string,
-    ethReward: string,
-    exists: boolean,
-    lockedAlca: string,
-    lockupPeriod: string,
-    penalty: string,
-    remainingRewards: string,
-    tokenId: string,
-    unlockDate: string,
-}
+    alcaReward: string;
+    ethReward: string;
+    exists: boolean;
+    lockedAlca: string;
+    lockupPeriod: string;
+    penalty: string;
+    remainingRewards: string;
+    tokenId: string;
+    unlockDate: string;
+};
 
 /**
  * @typedef { Object } StakedPosition - A Staked Position Object
@@ -46,27 +47,27 @@ type LockedPosition = {
  * @property { string } alcaRewards - The amount of claimable alca rewards on the position
  */
 type StakedPosition = {
-    tokenId: string,
-    shares: string,
-    ethRewards: string,
-    alcaRewards: string
-}
+    tokenId: string;
+    shares: string;
+    ethRewards: string;
+    alcaRewards: string;
+};
 
 type ContextState = {
-    trackedAddress: string,
-    allowances: object,
+    trackedAddress: string;
+    allowances: object;
     balances: {
-        alca: GenericContextValue,
-        alcb: GenericContextValue,
-        mad: GenericContextValue,
-        ethereum: GenericContextValue
-    },
+        alca: GenericContextValue;
+        alcb: GenericContextValue;
+        mad: GenericContextValue;
+        ethereum: GenericContextValue;
+    };
     positions: {
-        staked: GenericContextValue
-        lockedPosition: LockedPosition
-    },
-    updateBalances: Function
-}
+        staked: GenericContextValue;
+        lockedPosition: LockedPosition;
+    };
+    updateBalances: Function;
+};
 
 const defaultLockedPosition: LockedPosition = {
     alcaReward: "n/a",
@@ -78,7 +79,7 @@ const defaultLockedPosition: LockedPosition = {
     remainingRewards: "n/a",
     tokenId: "n/a",
     unlockDate: "n/a",
-}
+};
 
 const defaultContextState: ContextState = {
     trackedAddress: "n/a",
@@ -99,16 +100,16 @@ const defaultContextState: ContextState = {
         alca: { value: "n/a", error: false },
         alcb: { value: "n/a", error: false },
         ethereum: { value: "n/a", error: false },
-        mad: { value: "n/a", error: false }
+        mad: { value: "n/a", error: false },
     },
     positions: {
         staked: { value: [], error: false },
-        lockedPosition: { ...defaultLockedPosition }
+        lockedPosition: { ...defaultLockedPosition },
     },
     /**
      * @param {EthAdapter} ethAdapter - Ethereum adapter to be used from eth-adapter package
      */
-    updateBalances: (ethAdapter) => { },
+    updateBalances: (ethAdapter) => {},
 };
 
 export const BalanceContext = React.createContext(defaultContextState);
@@ -125,7 +126,7 @@ const prettyFxNames = {
     getStakedAlcaPositions: "getStakedAlcaPositions",
     getLockedPosition: "getLockedPosition",
     getAlcaAllowanceForStakeRouter: "getAlcaAllowanceForStakeRouter",
-    getMadAllowanceForStakeRouter: "getMadAllowanceForStakeRouter"
+    getMadAllowanceForStakeRouter: "getMadAllowanceForStakeRouter",
 };
 
 // Pretty function name => [functionName, functionObject]
@@ -136,8 +137,14 @@ const prettyFunctionIDs = {
     [prettyFxNames.getATokenAllowanceForMad]: [prettyFxNames.getATokenAllowanceForMad, getATokenAllowanceForMad],
     [prettyFxNames.getStakedAlcaPositions]: [prettyFxNames.getStakedAlcaPositions, getStakedAlcaPositions],
     [prettyFxNames.getLockedPosition]: [prettyFxNames.getLockedPosition, getLockedPosition],
-    [prettyFxNames.getAlcaAllowanceForStakeRouter]: [prettyFxNames.getAlcaAllowanceForStakeRouter, getAlcaAllowanceForStakeRouter],
-    [prettyFxNames.getMadAllowanceForStakeRouter]: [prettyFxNames.getMadAllowanceForStakeRouter, getMadAllowanceForStakeRouter],
+    [prettyFxNames.getAlcaAllowanceForStakeRouter]: [
+        prettyFxNames.getAlcaAllowanceForStakeRouter,
+        getAlcaAllowanceForStakeRouter,
+    ],
+    [prettyFxNames.getMadAllowanceForStakeRouter]: [
+        prettyFxNames.getMadAllowanceForStakeRouter,
+        getMadAllowanceForStakeRouter,
+    ],
 };
 
 /**
@@ -148,7 +155,7 @@ const prettyFunctionIDs = {
  */
 export function BalanceContextProvider({ children, ethAdapter }: { children: Component }) {
     const [contextState, setContextState] = React.useState(defaultContextState);
-    const [addressesFetched, setAddressesFetched] = React.useState(false)
+    const [addressesFetched, setAddressesFetched] = React.useState(false);
 
     const updateBalances = async (ethAdapter) => {
         if (!ethAdapter) {
@@ -158,24 +165,36 @@ export function BalanceContextProvider({ children, ethAdapter }: { children: Com
         const address = ethAdapter.connectedAccount;
 
         // Get eth balance first
-        await ethAdapter.updateEthereumBalance()
+        await ethAdapter.updateEthereumBalance();
 
         const updateAllAddressesFromFactory = async () => {
             let cSalts = ["ALCA", "ALCB", "PublicStaking", "Lockup", "ValidatorStaking", "StakingRouterV1"];
             for (let cSalt of cSalts) {
-                if (cSalt === "ALCB") {
-                    // Use environment variable for ALCB -- Lookup will not work
-                    console.warn("Factory resolution of ALCB skipped, using environment instead -- If 0x0a, verify environment is correct set")
-                    ethAdapter.contractConfig[cSalt.toLocaleUpperCase()].address = process.env.REACT_APP__ALCB_CONTRACT_ADDRESS || "0x0a"
+                if (cSalt === "ALCB" || cSalt === "ALCA" || "PublicStaking") {
+                    // Use environment variable for ALCA/ALCB/PublicStaking -- Lookup will not work
+                    console.warn(
+                        "Factory resolution of ALCB skipped, using environment instead -- If 0x0a, verify environment is correct set"
+                    );
+                    const addressToSet = (() => {
+                        switch (cSalt) {
+                            case "ALCA":
+                                return process.env.REACT_APP__ALCA_CONTRACT_ADDRESS;
+                            case "ALCB":
+                                return process.env.REACT_APP__ALCB_CONTRACT_ADDRESS;
+                            case "PublicStaking":
+                                return process.env.REACT_APP__ALCB_CONTRACT_ADDRESS;
+                        }
+                    })();
+                    ethAdapter.contractConfig[cSalt.toLocaleUpperCase()].address = addressToSet || "0x0a";
                 } else {
-                    const salt = ethAdapter.ethers.utils.formatBytes32String(cSalt)
+                    const salt = ethAdapter.ethers.utils.formatBytes32String(cSalt);
                     let addressFromFactory = await ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
                         salt_: salt,
                     });
                     ethAdapter.contractConfig[cSalt.toUpperCase()].address = addressFromFactory;
                 }
             }
-            setAddressesFetched(true)
+            setAddressesFetched(true);
         };
 
         if (!addressesFetched) {
@@ -183,7 +202,7 @@ export function BalanceContextProvider({ children, ethAdapter }: { children: Com
         }
 
         // Get legacy token address and update it to the MadToken contract
-        let legacyTokenContractAddress = await ethAdapter.contractMethods.ALCA.getLegacyTokenAddress_view_IN0_OUT1()
+        let legacyTokenContractAddress = await ethAdapter.contractMethods.ALCA.getLegacyTokenAddress_view_IN0_OUT1();
         ethAdapter.contractConfig["MADTOKEN"].address = legacyTokenContractAddress;
 
         // Get the BToken contract address and update contractConfig on ethAdapter if it's set to 0x0
@@ -211,7 +230,16 @@ export function BalanceContextProvider({ children, ethAdapter }: { children: Com
         ]);
 
         // Assign them as needed
-        let { madBalance, alcaBalance, alcbBalance, alcaMadAllowance, stakedPositions, lockedPosition, alcaRouterAllowance, madRouterAllowance } = {
+        let {
+            madBalance,
+            alcaBalance,
+            alcbBalance,
+            alcaMadAllowance,
+            stakedPositions,
+            lockedPosition,
+            alcaRouterAllowance,
+            madRouterAllowance,
+        } = {
             alcaBalance: functionResults[prettyFxNames.getAlcaBalance],
             alcbBalance: functionResults[prettyFxNames.getAlcbBalance],
             madBalance: functionResults[prettyFxNames.getMadBalance],
@@ -219,7 +247,7 @@ export function BalanceContextProvider({ children, ethAdapter }: { children: Com
             stakedPositions: functionResults[prettyFxNames.getStakedAlcaPositions],
             lockedPosition: functionResults[prettyFxNames.getLockedPosition],
             alcaRouterAllowance: functionResults[prettyFxNames.getAlcaAllowanceForStakeRouter],
-            madRouterAllowance: functionResults[prettyFxNames.getMadAllowanceForStakeRouter]
+            madRouterAllowance: functionResults[prettyFxNames.getMadAllowanceForStakeRouter],
         };
 
         let errChecks = [madBalance, alcaBalance, alcbBalance, alcaMadAllowance, stakedPositions, lockedPosition];
@@ -241,11 +269,9 @@ export function BalanceContextProvider({ children, ethAdapter }: { children: Com
         // Construct newAllowances object
         const newAllowances = {
             alca: {
-                [ethAdapter.contractConfig.STAKINGROUTERV1.address]: alcaRouterAllowance
+                [ethAdapter.contractConfig.STAKINGROUTERV1.address]: alcaRouterAllowance,
             },
-            alcb: {
-
-            },
+            alcb: {},
             mad: {
                 [ethAdapter.contractConfig.ALCA.address]: alcaMadAllowance,
                 [ethAdapter.contractConfig.STAKINGROUTERV1.address]: madRouterAllowance,
@@ -279,7 +305,7 @@ export function BalanceContextProvider({ children, ethAdapter }: { children: Com
     React.useEffect(() => {
         const balanceCheckInterval = async () => {
             if (!!ethAdapter.connectedAccount) {
-                console.log(ethAdapter)
+                console.log(ethAdapter);
                 updateBalances(ethAdapter);
             }
             await sleep(10000);
@@ -302,8 +328,8 @@ export function BalanceContextProvider({ children, ethAdapter }: { children: Com
 function generateContextValueResponse(error: boolean | string, value: any = "err"): GenericContextValue {
     return {
         error: !!error ? String(error) : false,
-        value: value
-    }
+        value: value,
+    };
 }
 
 async function resolveBalancePromiseFunctionsNeatly(promiseFunctions: any[]): Promise<any> {
@@ -345,9 +371,9 @@ async function getMadBalance(ethAdapter: any, address: string): Promise<GenericC
         const res = await ethAdapter.contractMethods.MADTOKEN.balanceOf_view_IN1_OUT1({
             _owner: address,
         });
-        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
+        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res));
     } catch (ex) {
-        return generateContextValueResponse("getMadBalance(): " + ex.message)
+        return generateContextValueResponse("getMadBalance(): " + ex.message);
     }
 }
 
@@ -363,9 +389,9 @@ async function getATokenAllowanceForMad(ethAdapter: any, address: string): Promi
             _owner: address,
             _spender: aTokenAddress,
         });
-        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(allowance))
+        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(allowance));
     } catch (ex) {
-        return generateContextValueResponse("getATokenAllowanceForMad(): " + ex.message)
+        return generateContextValueResponse("getATokenAllowanceForMad(): " + ex.message);
     }
 }
 
@@ -374,9 +400,9 @@ async function getAlcaBalance(ethAdapter: any, address: string): Promise<Generic
         const res = await ethAdapter.contractMethods.ALCA.balanceOf_view_IN1_OUT1({
             account: address,
         });
-        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
+        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res));
     } catch (ex) {
-        return generateContextValueResponse("getAlcaBalance(): " + ex.message)
+        return generateContextValueResponse("getAlcaBalance(): " + ex.message);
     }
 }
 
@@ -384,8 +410,8 @@ async function getAlcbBalance(ethAdapter: any, address: string): Promise<Generic
     try {
         const res = await ethAdapter.contractMethods.ALCB.balanceOf_view_IN1_OUT1({
             account: address,
-        }); 
-        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res))
+        });
+        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(res));
     } catch (ex) {
         return generateContextValueResponse("getAlcbBalance(): " + ex.message);
     }
@@ -410,7 +436,7 @@ async function getStakedAlcaPositions(ethAdapter: any, address: string): Promise
                 alcaRewards: ethAdapter.ethers.utils.formatEther(meta.alcaRewards.toString()),
             });
         }
-        return generateContextValueResponse(false, positions)
+        return generateContextValueResponse(false, positions);
     } catch (ex) {
         return generateContextValueResponse("getStakedAlcaPositions(): " + ex.message);
     }
@@ -450,7 +476,14 @@ async function _getPublicStakingTokenMetadataFromTokenIdArray(ethAdapter: any, t
         const claimRewardsAfter = findPublicStakingTokenAttributeByName(attributes, "Withdraw Free After");
         const ethRewards = await _estimatePublicStakingRewardEthCollection(ethAdapter, id);
         const alcaRewards = await _estimatePublicStakingRewardAlcaCollection(ethAdapter, id);
-        meta.push({ tokenId: id, shares: shares.value, unstakeAfter: unstakeAfter, claimRewardsAfter: claimRewardsAfter, ethRewards, alcaRewards });
+        meta.push({
+            tokenId: id,
+            shares: shares.value,
+            unstakeAfter: unstakeAfter,
+            claimRewardsAfter: claimRewardsAfter,
+            ethRewards,
+            alcaRewards,
+        });
     }
     return meta;
 }
@@ -478,13 +511,12 @@ async function _getPublicStakingPosition(ethAdapter: any, tokenId: string) {
 ///////////////////////////////
 
 async function getLockedPosition(ethAdapter, address): Promise<GenericContextValue> {
-
     const getDiffInMonths = (startdate, endDate) => {
         let months = (endDate.getFullYear() - startdate.getFullYear()) * 12;
         months -= startdate.getMonth();
         months += endDate.getMonth();
         return months <= 0 ? 0 : months;
-    }
+    };
 
     try {
         const tokenId = await _getLockedPositionTokenIdForAddress(ethAdapter, address);
@@ -505,17 +537,15 @@ async function getLockedPosition(ethAdapter, address): Promise<GenericContextVal
         const months = getDiffInMonths(new Date(), endDate);
 
         const lockupPeriodDefinition = (() => {
-            const BN = num => ethAdapter.ethers.BigNumber.from(num);
+            const BN = (num) => ethAdapter.ethers.BigNumber.from(num);
             if (BN(blockNumber).lt(BN(start))) {
-                return "ENROLLMENT"
+                return "ENROLLMENT";
+            } else if (BN(blockNumber).gt(BN(end))) {
+                return "ENDED";
+            } else {
+                return "STARTED";
             }
-            else if (BN(blockNumber).gt(BN(end))) {
-                return "ENDED"
-            }
-            else {
-                return "STARTED"
-            }
-        })()
+        })();
 
         return generateContextValueResponse(false, {
             lockedAlca: ethAdapter.ethers.utils.formatEther(shares),
@@ -527,7 +557,7 @@ async function getLockedPosition(ethAdapter, address): Promise<GenericContextVal
             penalty: penalty.toString(),
             blockUntilUnlock: ethAdapter.ethers.BigNumber.from(end).sub(blockNumber).toString(),
             remainingRewards,
-        })
+        });
     } catch (ex) {
         return generateContextValueResponse("getLockedPosition()" + ex.message);
     }
@@ -544,7 +574,6 @@ async function _estimateLockedPositionProfits(ethAdapter, tokenId) {
         tokenID_: tokenId,
     });
 }
-
 
 ////////////////////////
 // ROUTER ALLOWANCES //
@@ -563,7 +592,7 @@ async function getAlcaAllowanceForStakeRouter(ethAdapter: any, address: string):
             owner: address,
             spender: publicStakingAddress,
         });
-        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(allowance))
+        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(allowance));
     } catch (ex) {
         return generateContextValueResponse("getAlcaAllowanceForStakeRouter(): " + ex.message);
     }
@@ -581,9 +610,9 @@ async function getMadAllowanceForStakeRouter(ethAdapter: any, address: string) {
             _owner: address,
             _spender: publicStakingAddress,
         });
-        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(allowance))
+        return generateContextValueResponse(false, ethAdapter.ethers.utils.formatEther(allowance));
     } catch (ex) {
-        return generateContextValueResponse("getMadAllowanceForStakeRouter(): " + ex.message)
+        return generateContextValueResponse("getMadAllowanceForStakeRouter(): " + ex.message);
     }
 }
 

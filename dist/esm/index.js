@@ -14,6 +14,8 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
+/* global Reflect, Promise, SuppressedError, Symbol */
+
 
 var __assign = function() {
     __assign = Object.assign || function __assign(t) {
@@ -63,6 +65,11 @@ function __generator(thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 }
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
 
 var _a;
 var defaultLockedPosition = {
@@ -128,8 +135,14 @@ var prettyFunctionIDs = (_a = {},
     _a[prettyFxNames.getATokenAllowanceForMad] = [prettyFxNames.getATokenAllowanceForMad, getATokenAllowanceForMad],
     _a[prettyFxNames.getStakedAlcaPositions] = [prettyFxNames.getStakedAlcaPositions, getStakedAlcaPositions],
     _a[prettyFxNames.getLockedPosition] = [prettyFxNames.getLockedPosition, getLockedPosition],
-    _a[prettyFxNames.getAlcaAllowanceForStakeRouter] = [prettyFxNames.getAlcaAllowanceForStakeRouter, getAlcaAllowanceForStakeRouter],
-    _a[prettyFxNames.getMadAllowanceForStakeRouter] = [prettyFxNames.getMadAllowanceForStakeRouter, getMadAllowanceForStakeRouter],
+    _a[prettyFxNames.getAlcaAllowanceForStakeRouter] = [
+        prettyFxNames.getAlcaAllowanceForStakeRouter,
+        getAlcaAllowanceForStakeRouter,
+    ],
+    _a[prettyFxNames.getMadAllowanceForStakeRouter] = [
+        prettyFxNames.getMadAllowanceForStakeRouter,
+        getMadAllowanceForStakeRouter,
+    ],
     _a);
 /**
  * @param {String} addressToTrack -
@@ -141,8 +154,9 @@ function BalanceContextProvider(_a) {
     var _this = this;
     var children = _a.children, ethAdapter = _a.ethAdapter;
     var _b = React.useState(defaultContextState), contextState = _b[0], setContextState = _b[1];
+    var _c = React.useState(false), addressesFetched = _c[0], setAddressesFetched = _c[1];
     var updateBalances = function (ethAdapter) { return __awaiter(_this, void 0, void 0, function () {
-        var address, updateAllAddressesFromFactory, legacyTokenContractAddress, bTokenAddress, functionResults, _a, madBalance, alcaBalance, alcbBalance, alcaMadAllowance, stakedPositions, lockedPosition, alcaRouterAllowance, madRouterAllowance, errChecks, _i, errChecks_1, errCheck, newBalances, newAllowances, newPositions;
+        var address, updateAllAddressesFromFactory, legacyTokenContractAddress, functionResults, _a, madBalance, alcaBalance, alcbBalance, alcaMadAllowance, stakedPositions, lockedPosition, alcaRouterAllowance, madRouterAllowance, errChecks, _i, errChecks_1, errCheck, newBalances, newAllowances, newPositions;
         var _b, _c;
         var _this = this;
         return __generator(this, function (_d) {
@@ -158,57 +172,82 @@ function BalanceContextProvider(_a) {
                     // Get eth balance first
                     _d.sent();
                     updateAllAddressesFromFactory = function () { return __awaiter(_this, void 0, void 0, function () {
-                        var cSalts, _i, cSalts_1, cSalt, addressFromFactory;
+                        var cSalts, _loop_1, _i, cSalts_1, cSalt;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
                                     cSalts = ["ALCA", "ALCB", "PublicStaking", "Lockup", "ValidatorStaking", "StakingRouterV1"];
+                                    _loop_1 = function (cSalt) {
+                                        var addressToSet, salt, addressFromFactory;
+                                        return __generator(this, function (_b) {
+                                            switch (_b.label) {
+                                                case 0:
+                                                    if (!(cSalt === "ALCB" || cSalt === "ALCA" || "PublicStaking")) return [3 /*break*/, 1];
+                                                    // Use environment variable for ALCA/ALCB/PublicStaking -- Lookup will not work
+                                                    console.warn("Factory resolution of ALCB skipped, using environment instead -- If 0x0a, verify environment is correct set");
+                                                    addressToSet = (function () {
+                                                        switch (cSalt) {
+                                                            case "ALCA":
+                                                                return process.env.REACT_APP__ALCA_CONTRACT_ADDRESS;
+                                                            case "ALCB":
+                                                                return process.env.REACT_APP__ALCB_CONTRACT_ADDRESS;
+                                                            case "PublicStaking":
+                                                                return process.env.REACT_APP__ALCB_CONTRACT_ADDRESS;
+                                                        }
+                                                    })();
+                                                    ethAdapter.contractConfig[cSalt.toLocaleUpperCase()].address = addressToSet || "0x0a";
+                                                    return [3 /*break*/, 3];
+                                                case 1:
+                                                    salt = ethAdapter.ethers.utils.formatBytes32String(cSalt);
+                                                    return [4 /*yield*/, ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
+                                                            salt_: salt
+                                                        })];
+                                                case 2:
+                                                    addressFromFactory = _b.sent();
+                                                    ethAdapter.contractConfig[cSalt.toUpperCase()].address = addressFromFactory;
+                                                    _b.label = 3;
+                                                case 3: return [2 /*return*/];
+                                            }
+                                        });
+                                    };
                                     _i = 0, cSalts_1 = cSalts;
                                     _a.label = 1;
                                 case 1:
                                     if (!(_i < cSalts_1.length)) return [3 /*break*/, 4];
                                     cSalt = cSalts_1[_i];
-                                    return [4 /*yield*/, ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
-                                            salt_: ethAdapter.ethers.utils.formatBytes32String(cSalt)
-                                        })];
+                                    return [5 /*yield**/, _loop_1(cSalt)];
                                 case 2:
-                                    addressFromFactory = _a.sent();
-                                    ethAdapter.contractConfig[cSalt.toUpperCase()].address = addressFromFactory;
+                                    _a.sent();
                                     _a.label = 3;
                                 case 3:
                                     _i++;
                                     return [3 /*break*/, 1];
-                                case 4: return [2 /*return*/];
+                                case 4:
+                                    setAddressesFetched(true);
+                                    return [2 /*return*/];
                             }
                         });
                     }); };
+                    if (!!addressesFetched) return [3 /*break*/, 3];
                     return [4 /*yield*/, updateAllAddressesFromFactory()];
                 case 2:
                     _d.sent();
-                    return [4 /*yield*/, ethAdapter.contractMethods.ALCA.getLegacyTokenAddress_view_IN0_OUT1()];
-                case 3:
+                    _d.label = 3;
+                case 3: return [4 /*yield*/, ethAdapter.contractMethods.ALCA.getLegacyTokenAddress_view_IN0_OUT1()];
+                case 4:
                     legacyTokenContractAddress = _d.sent();
                     ethAdapter.contractConfig["MADTOKEN"].address = legacyTokenContractAddress;
-                    if (!(ethAdapter.contractConfig["ALCB"].address === "0x0")) return [3 /*break*/, 5];
-                    console.warn("BToken was set to 0x0... using Factory.lookup() to populate ALCB address.");
-                    return [4 /*yield*/, ethAdapter.contractMethods.FACTORY.lookup_view_IN1_OUT1({
-                            salt_: ethAdapter.ethers.utils.formatBytes32String("BToken")
-                        })];
-                case 4:
-                    bTokenAddress = _d.sent();
-                    ethAdapter.contractConfig["ALCB"].address = bTokenAddress;
-                    _d.label = 5;
-                case 5: return [4 /*yield*/, resolveBalancePromiseFunctionsNeatly([
-                        [prettyFxNames.getMadBalance, [ethAdapter, address]],
-                        [prettyFxNames.getAlcaBalance, [ethAdapter, address]],
-                        [prettyFxNames.getAlcbBalance, [ethAdapter, address]],
-                        [prettyFxNames.getATokenAllowanceForMad, [ethAdapter, address]],
-                        [prettyFxNames.getStakedAlcaPositions, [ethAdapter, address]],
-                        [prettyFxNames.getLockedPosition, [ethAdapter, address]],
-                        [prettyFxNames.getAlcaAllowanceForStakeRouter, [ethAdapter, address]],
-                        [prettyFxNames.getMadAllowanceForStakeRouter, [ethAdapter, address]],
-                    ])];
-                case 6:
+                    return [4 /*yield*/, resolveBalancePromiseFunctionsNeatly([
+                            [prettyFxNames.getMadBalance, [ethAdapter, address]],
+                            [prettyFxNames.getAlcaBalance, [ethAdapter, address]],
+                            [prettyFxNames.getAlcbBalance, [ethAdapter, address]],
+                            [prettyFxNames.getATokenAllowanceForMad, [ethAdapter, address]],
+                            [prettyFxNames.getStakedAlcaPositions, [ethAdapter, address]],
+                            [prettyFxNames.getLockedPosition, [ethAdapter, address]],
+                            [prettyFxNames.getAlcaAllowanceForStakeRouter, [ethAdapter, address]],
+                            [prettyFxNames.getMadAllowanceForStakeRouter, [ethAdapter, address]],
+                        ])];
+                case 5:
                     functionResults = _d.sent();
                     _a = {
                         alcaBalance: functionResults[prettyFxNames.getAlcaBalance],
@@ -263,6 +302,7 @@ function BalanceContextProvider(_a) {
                 switch (_a.label) {
                     case 0:
                         if (!!ethAdapter.connectedAccount) {
+                            console.log(ethAdapter);
                             updateBalances(ethAdapter);
                         }
                         return [4 /*yield*/, sleep(10000)];
@@ -518,7 +558,14 @@ function _getPublicStakingTokenMetadataFromTokenIdArray(ethAdapter, tokenIds) {
                     return [4 /*yield*/, _estimatePublicStakingRewardAlcaCollection(ethAdapter, id)];
                 case 4:
                     alcaRewards = _a.sent();
-                    meta.push({ tokenId: id, shares: shares.value, unstakeAfter: unstakeAfter, claimRewardsAfter: claimRewardsAfter, ethRewards: ethRewards, alcaRewards: alcaRewards });
+                    meta.push({
+                        tokenId: id,
+                        shares: shares.value,
+                        unstakeAfter: unstakeAfter,
+                        claimRewardsAfter: claimRewardsAfter,
+                        ethRewards: ethRewards,
+                        alcaRewards: alcaRewards
+                    });
                     _a.label = 5;
                 case 5:
                     _i++;

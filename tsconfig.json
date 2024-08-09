@@ -2,7 +2,7 @@
     "compilerOptions": {
       "esModuleInterop": true,
       "strict": false,
-      "skipLibCheck": true,
+      "skipLibCheck": false,
       "jsx": "react",
       "module": "ESNext",  
       "declaration": true,

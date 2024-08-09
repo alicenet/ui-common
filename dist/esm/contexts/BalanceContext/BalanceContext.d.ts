@@ -55,5 +55,5 @@ export declare const BalanceContext: React.Context<ContextState>;
  */
 export declare function BalanceContextProvider({ children, ethAdapter }: {
     children: Component;
-}): JSX.Element;
+}): React.JSX.Element;
 export {};
