@@ -50,6 +50,6 @@
         "dist"
     ],
     "dependencies": {
-        "eth-adapter": "^0.0.13"
+        "eth-adapter": "1.0.7"
     }
 }
