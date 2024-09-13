@@ -182,7 +182,7 @@ export function BalanceContextProvider({ children, ethAdapter }: { children: Com
                             case "ALCB":
                                 return process.env.REACT_APP__ALCB_CONTRACT_ADDRESS;
                             case "PublicStaking":
-                                return process.env.REACT_APP__ALCB_CONTRACT_ADDRESS;
+                                return process.env.REACT_APP__PUBLICSTAKING_CONTRACT_ADDRESS;
                         }
                     })();
                     ethAdapter.contractConfig[cSalt.toLocaleUpperCase()].address = addressToSet || "0x0a";
